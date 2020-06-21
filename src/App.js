@@ -8,12 +8,14 @@ import {
   StatusBar,
   StyleSheet,
   TouchableOpacity,
+  TextComponent,
 } from "react-native";
 import api from "./services/api";
 
 export default function App() {
 
   const [ repositories, setRepositories ] = useState([])
+  const [ textPlural, setTextPlural ] = useState("")
 
   useEffect(() => {
       api.get('repositories').then( response => {
@@ -25,16 +27,27 @@ export default function App() {
   async function handleLikeRepository(id) {
     // Implement "Like Repository" functionality
     const response = await api.post(`/repositories/${id}/like`)
+    console.log(response.data)
     const updatedRepo = response.data
-    setRepositories(updatedRepo)
-    
+    const filtered = repositories.filter(repository => repository.id !== id)
+    setRepositories([...filtered, updatedRepo])
   }
+
+  function handleTextPlural(qtdLikes){
+    if(qtdLikes > 1){
+      return " curtidas"
+    } else {
+      return " curtida"
+    }
+  }
+
+
 
   return (
     <>
       <StatusBar barStyle="light-content" backgroundColor="#7159c1" />
       <SafeAreaView style={styles.container}>
-        <Text style={styles.desafioText}>Desafio React Native GOSTack 🚀</Text>
+        <Text style={styles.desafioText}>Desafio React Native GoStack 🚀</Text>
         <FlatList
           data={repositories}
 
@@ -65,8 +78,10 @@ export default function App() {
                   style={styles.likeText}
                   // Remember to replace "1" below with repository ID: {`repository-likes-${repository.id}`}
                   testID={`repository-likes-${repository.id}`}
+                  
                 >
-                  {repository.likes} curtida
+                  {`${repository.likes} ${handleTextPlural(repository.likes)}`}
+
                 </Text>
               </View>
     
@@ -81,10 +96,8 @@ export default function App() {
             </View>
           )}
         >
-
-
-
         </FlatList>
+     
       </SafeAreaView>
     </>
   );
@@ -102,7 +115,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   repository: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: "bold",
   },
   techsContainer: {
